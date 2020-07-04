@@ -92,6 +92,10 @@ class Node
 		@value = value
 		@next = nxt
 	end
+
+	def ==(other)
+		other != nil && self.value == other.value
+	  end
 end
 
 def test
