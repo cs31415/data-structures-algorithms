@@ -1,108 +1,9 @@
-require_relative 'linked_list'
-
-class Vertex
-	attr_accessor :key, :adjList
-    def initialize(key)
-        puts "Creating Vertex(" + key.to_s + ")"
-		@key = key
-    end
-
-    def addEdges(*keys)
-        if not @adjList
-            @adjList = LinkedList.new
-        end
-        # add value to adj list if it doesn't already exist
-        keys.each do |key|
-            if not @adjList.contains(key)
-                @adjList.add(key)
-            end
-        end
-    end
-
-    def addEdges(*vertices)
-        if not @adjList
-            @adjList = LinkedList.new
-        end
-        # add value to adj list if it doesn't already exist
-        vertices.each do |vertex|
-            if not @adjList.contains(vertex)
-                @adjList.add(vertex)
-            end
-        end
-    end
-
-    def write
-        print @key.to_s + " : " 
-        node = @adjList.head
-        while node != nil
-            v = node.value
-            print v.key.to_s + " > "
-            node = node.next
-        end
-        print "nil\n"
-    end
-end
-
-# This class can be used to represent a directed or undirected graph.
-# It uses adjacency list representation.
-class Graph
-    attr_accessor :vertices
-    def initialize()
-        @vertices = Hash.new
-    end
-
-    def addVertex(key)
-        vertex = nil
-        if not @vertices.has_key?(key)
-            @vertices[key] = Vertex.new(key)
-        end
-    end
-
-    def getVertex(key)
-        return @vertices[key]
-    end
-
-    def isDirected
-        # start out assuming undirected graph
-        directed = false
-        # For each vertex check for missing back connections
-        @vertices.each do |k,v|
-            c = v.adjList.head
-            # go through all connections
-            while c != nil
-                backConn = false
-                # iterate through c's connections
-                b = c.value.adjList.head
-                while b != nil 
-                    if (b.value.key == k)
-                        backConn = true
-                        break
-                    end
-                    b = b.next
-                end
-                # if a back connection is missing, then the graph is directed
-                if !backConn
-                    directed = true
-                    break
-                end
-                c = c.next
-            end
-        end
-        return directed
-    end
-
-    def write
-        puts "graph is " + (isDirected ? "directed" : "undirected")
-        @vertices.each { |key, val| val.write }
-    end
-end
+require_relative 'graph'
 
 class DfsHelper
+    # Perform a depth-first search on graph g
     # g - graph
-    # s - source vertex
-    def dfs(g, skey)
-        puts "Running dfs with source = " + skey.to_s
-
+    def dfs(g)
         # create required structures
         @pred = Hash.new
         @color = Hash.new
@@ -153,13 +54,14 @@ def printPath (pred, vertex)
 end
 
 def test (start)
-  #test_directed(start)
-  test_directed_textbook(start)
-  #test_undirected(start)
+  #test_directed()
+  test_directed_textbook()
+  #test_undirected()
 end
 
-def test_directed(start)
+def test_directed()
     g = Graph.new
+
     v1 = g.addVertex(1)
     v2 = g.addVertex(2)
     v3 = g.addVertex(3)
@@ -175,11 +77,12 @@ def test_directed(start)
     v6.addEdges(v6)
     
     g.write
+
     h = DfsHelper.new
-    h.dfs(g,start)
+    h.dfs(g)
 end
 
-def test_directed_textbook(start)
+def test_directed_textbook()
     g = Graph.new
 
     u = g.addVertex("u")
@@ -197,12 +100,14 @@ def test_directed_textbook(start)
     z.addEdges(z)
 
     g.write
+
     h = DfsHelper.new
-    h.dfs(g,start)
+    h.dfs(g)
 end
 
-def test_undirected(start)
+def test_undirected()
     g = Graph.new
+
     v1 = g.addVertex(1)
     v2 = g.addVertex(2)
     v3 = g.addVertex(3)
@@ -220,13 +125,9 @@ def test_undirected(start)
     g.write
 
     h = DfsHelper.new
-    h.dfs(g,start)
+    h.dfs(g)
 end
 
-if ARGV.empty?
-    puts "Usage: ruby bfs.rb [source vertex]"
-    exit
-end
 d,f,pred,color = test ARGV[0].to_i
 puts "node\td\tf\tpred\tcolor"
 color.each do |key, value|

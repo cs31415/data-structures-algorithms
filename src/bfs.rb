@@ -1,82 +1,18 @@
-require_relative 'linked_list'
+require_relative 'graph'
 
-class Vertex
-	attr_accessor :key, :adjList
-    def initialize(key)
-        puts "Creating Vertex(" + key.to_s + ")"
-		@key = key
-    end
-
-    def addEdges(*keys)
-        if not @adjList
-            @adjList = LinkedList.new
-        end
-        # add value to adj list if it doesn't already exist
-        keys.each do |key|
-            if not @adjList.contains(key)
-                @adjList.add(key)
-            end
-        end
-    end
-
-    def write
-        print @key.to_s + ":" 
-        @adjList.write 
-    end
-end
-
-# This class can be used to represent a directed or undirected graph.
-# It uses adjacency list representation.
-class Graph
-    attr_accessor :vertices
-    def initialize()
-        @vertices = Hash.new
-    end
-
-    def addVertex(key)
-        vertex = nil
-        if not @vertices.has_key?(key)
-            @vertices[key] = Vertex.new(key)
-        end
-    end
-
-    def isDirected
-        directed = false
-        @vertices.each do |k,v|
-            head = v.adjList.head
-            n = head
-            loop do
-                break if n == nil
-                if (n.value != v.key)
-                    directed = true
-                    break
-                end
-                n = n.next
-            end
-            if directed
-                break
-            end
-        end
-        return directed
-    end
-
-    def write
-        puts "graph is " + (isDirected ? "directed" : "undirected")
-        @vertices.each { |key, val| val.write }
-    end
-end
-
+# Do a breadth-first search of graph g starting at source vertex s
 # g - graph
-# s - source vertex
+# skey - key for start vertex
 def bfs(g, skey)
-    puts "Running bfs with source = " + skey.to_s
+    puts "Running bfs with source vertex " + skey.to_s
+
     # create required structures
     dist = Hash.new
     pred = Hash.new
     color = Hash.new
     q = Queue.new
 
-    # initialize g
+    # initialize structures
     g.vertices.each do |key,val|
        dist[key] = -1
        pred[key] = nil
@@ -87,48 +23,44 @@ def bfs(g, skey)
     s = g.vertices[skey]
     dist[skey] = 0
     color[skey] = "gray"
-    puts "Enqueue " + skey.to_s + " and color it gray"
     q.enq s
 
     paths = Array.new
 
     # process queue
     while !q.empty?
+        # dequeue item for processing
         v = q.deq
-        puts "Dequeue & examine connections for " + v.key.to_s 
-        # print "dequeue " + v.key.to_s + ", color = " + color[v.key] 
-        # print ", dist=" + dist[v.key].to_s 
-        # print ", pred=" + (pred.has_key?(v.key) ? (pred[v.key] != nil ? pred[v.key].key.to_s : "nil") : "nil")
-        # puts
-        # puts "Iterating " + v.key.to_s + " 's adjacency list"
 
-        # iterate v's adjacency list, adding vertices to queue
+        # visit 1st-level connections
         node = v.adjList.head
         while node != nil do
-            w = g.vertices[node.value]    
-            puts w.key.to_s + ", color = " + color[w.key]
+            w = g.getVertex(node.value.key)    
             if color[w.key] == "white"
                 color[w.key] = "gray"
                 dist[w.key] = dist[v.key] + 1
                 pred[w.key] = v
-                puts "Color " + w.key.to_s + " gray and enqueue"
+                
+                # queue the connection to come back to later
                 q.enq w
             end    
             node = node.next
         end
 
         color[v.key] = "black"
-        puts "color " + v.key.to_s + " to " + color[v.key]
-        # puts printPath(pred, v)
     end
-    return [dist,pred,color]
+    return [g,dist,pred,color]
 end
 
-def printPath (pred, vertex)
+def printPath (g, pred, key)
+    vertex = g.getVertex(key)
     if (vertex == nil)
-        return "\n"
+        return ""
     else
-        return printPath(pred, pred[vertex.key]) + " " + vertex.key.to_s
+        prev = pred[vertex.key]
+        prevKey = prev != nil ? prev.key : nil
+        path = printPath(g, pred, prevKey) 
+        return (path != "" ? (path + ">") : "") + vertex.key.to_s
     end
 end
 
@@ -139,25 +71,43 @@ end
 
 def test_directed(start)
     g = Graph.new
-    g.addVertex(1).addEdges(2,4)
-    g.addVertex(2).addEdges(5)
-    g.addVertex(3).addEdges(6,5)
-    g.addVertex(4).addEdges(2)
-    g.addVertex(5).addEdges(4)
-    g.addVertex(6).addEdges(6)
+    v1 = g.addVertex(1)
+    v2 = g.addVertex(2)
+    v3 = g.addVertex(3)
+    v4 = g.addVertex(4)
+    v5 = g.addVertex(5)
+    v6 = g.addVertex(6)
+
+    v1.addEdges(v2,v4)
+    v2.addEdges(v5)
+    v3.addEdges(v6,v5)
+    v4.addEdges(v2)
+    v5.addEdges(v4)
+    v6.addEdges(v6)
+    
     g.write
+
     bfs(g,start)
 end
 
 def test_undirected(start)
     g = Graph.new
-    g.addVertex(1).addEdges(2,5)
-    g.addVertex(2).addEdges(1,3,5,6)
-    g.addVertex(3).addEdges(2,6,4)
-    g.addVertex(4).addEdges(3)
-    g.addVertex(5).addEdges(1,2,6)
-    g.addVertex(6).addEdges(2,3,5)
+    v1 = g.addVertex(1)
+    v2 = g.addVertex(2)
+    v3 = g.addVertex(3)
+    v4 = g.addVertex(4)
+    v5 = g.addVertex(5)
+    v6 = g.addVertex(6)
+
+    v1.addEdges(v2,v5)
+    v2.addEdges(v1,v3,v5,v6)
+    v3.addEdges(v2,v6,v4)
+    v4.addEdges(v3)
+    v5.addEdges(v1,v2,v6)
+    v6.addEdges(v2,v3,v5)
+    
     g.write
+
     bfs(g,start)
 end
 
@@ -165,9 +115,9 @@ if ARGV.empty?
     puts "Usage: ruby bfs.rb [source vertex]"
     exit
 end
-dist,pred,color = test ARGV[0].to_i
-puts "Node,Distance, Previous, Color"
+g,dist,pred,color = test ARGV[0].to_i
+puts "node\tdist\tpred\tcolor\tpath"
 dist.each do |key, value|
-    prev = pred[key].nil? ? "" : pred[key].key.to_s
-    puts key.to_s + "," + dist[key].to_s + "," + prev  + "," + color[key]
-end 
+    prev = pred[key].nil? ? "nil" : pred[key].key.to_s
+    puts key.to_s + "\t" + dist[key].to_s + "\t" + prev  + "\t" + color[key] + "\t" + printPath(g, pred, key)
+end
