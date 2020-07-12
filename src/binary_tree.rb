@@ -74,7 +74,7 @@ class BinaryTree
 	def post_order_traverse(node, action)
 	end
 	def print()
-		pre_order_traverse(@root, lambda {|n, d, r| puts ("." * d + n.value.to_s + "-" + (r != nil ? r : "")) }, 0, nil)
+		pre_order_traverse(@root, lambda {|n, d, r| puts ("|" + "-" * d + "|" + n.value.to_s + "-" + (r != nil ? r : "")) }, 0, nil)
 	end
 
 	private

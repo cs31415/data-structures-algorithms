@@ -54,12 +54,13 @@ def printPath (pred, vertex)
 end
 
 def test (start)
-  #test_directed()
+  test_directed()
   test_directed_textbook()
-  #test_undirected()
+  test_undirected()
 end
 
 def test_directed()
+    puts "1. Directed graph test:"
     g = Graph.new
 
     v1 = g.addVertex(1)
@@ -79,10 +80,12 @@ def test_directed()
     g.write
 
     h = DfsHelper.new
-    h.dfs(g)
+    printResults(h.dfs(g))
 end
 
 def test_directed_textbook()
+    puts "\n2. Directed graph test (Intro to algorithms textbook):"
+
     g = Graph.new
 
     u = g.addVertex("u")
@@ -102,10 +105,12 @@ def test_directed_textbook()
     g.write
 
     h = DfsHelper.new
-    h.dfs(g)
+    printResults(h.dfs(g))
 end
 
 def test_undirected()
+    puts "\n3. Undirected graph test:"
+    
     g = Graph.new
 
     v1 = g.addVertex(1)
@@ -125,12 +130,16 @@ def test_undirected()
     g.write
 
     h = DfsHelper.new
-    h.dfs(g)
+    printResults(h.dfs(g))
 end
 
-d,f,pred,color = test ARGV[0].to_i
-puts "node\td\tf\tpred\tcolor"
-color.each do |key, value|
-    prev = pred[key].nil? ? "nil" : pred[key].key.to_s
-    puts key.to_s + "\t" + d[key].to_s + "\t" + f[key].to_s + "\t" + prev  + "\t" + color[key]
-end 
+def printResults(f)
+    d,f,pred,color = f
+    puts "node\td\tf\tpred\tcolor"
+    color.each do |key, value|
+        prev = pred[key].nil? ? "nil" : pred[key].key.to_s
+        puts key.to_s + "\t" + d[key].to_s + "\t" + f[key].to_s + "\t" + prev  + "\t" + color[key]
+    end 
+end
+
+test ARGV[0].to_i

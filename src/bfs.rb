@@ -65,11 +65,12 @@ def printPath (g, pred, key)
 end
 
 def test (start)
-  #test_directed(start)
+  test_directed(start)
   test_undirected(start)
 end
 
 def test_directed(start)
+    puts "1. Directed graph test:"
     g = Graph.new
     v1 = g.addVertex(1)
     v2 = g.addVertex(2)
@@ -87,10 +88,11 @@ def test_directed(start)
     
     g.write
 
-    bfs(g,start)
+    printResults(bfs(g,start))
 end
 
 def test_undirected(start)
+    puts "\n2. Undirected graph test:"
     g = Graph.new
     v1 = g.addVertex(1)
     v2 = g.addVertex(2)
@@ -108,16 +110,21 @@ def test_undirected(start)
     
     g.write
 
-    bfs(g,start)
+    printResults(bfs(g,start))
+end
+
+def printResults(f)
+    g,dist,pred,color = f
+    puts "node\tdist\tpred\tcolor\tpath"
+    dist.each do |key, value|
+        prev = pred[key].nil? ? "nil" : pred[key].key.to_s
+        puts key.to_s + "\t" + dist[key].to_s + "\t" + prev  + "\t" + color[key] + "\t" + printPath(g, pred, key)
+    end 
 end
 
 if ARGV.empty?
     puts "Usage: ruby bfs.rb [source vertex]"
     exit
 end
-g,dist,pred,color = test ARGV[0].to_i
-puts "node\tdist\tpred\tcolor\tpath"
-dist.each do |key, value|
-    prev = pred[key].nil? ? "nil" : pred[key].key.to_s
-    puts key.to_s + "\t" + dist[key].to_s + "\t" + prev  + "\t" + color[key] + "\t" + printPath(g, pred, key)
-end
+
+test ARGV[0].to_i
