@@ -11,131 +11,81 @@ end
 class BinaryTree
 	attr_accessor :root
 
-	def insert(value)
-		if @root == nil
-			@root = TreeNode.new(value, nil, nil, nil)	
-		else
-			tree_insert(@root, value)			    
-		end
-	end
-	def search(value) 		
-		node = tree_search(@root, value)
-		puts "search(#{value}) = #{node != nil ? 'true' : 'false'}"
-		return node
-	end
-	def remove(value)
-		node = tree_search(@root, value)
-		tree_remove(node)	
-	end
-	def min(node)
-		while node != nil
-			if node.left == nil
-				return node
-			end
-			node = node.left
-		end	
-		return nil
-	end
-	def max(node)
-		while node != nil
-			if node.right == nil
-				return node
-			end
-			node = node.right
-		end
-		return nil
-	end
-	def predecessor(value)
-		node = search(value)
-		pred = tree_predecessor(node)	
-		puts "predecessor(#{value}) = #{pred != nil ? pred.value : 'nil'}"
-		return pred
-	end
-	def successor(value)
-		node = tree_search(@root, value)
-		succ =  tree_successor(node)
-		puts "successor(#{value}) = #{succ != nil ? succ.value : 'nil'}"
-		return succ
-	end
-	def pre_order_traverse(node, action, depth, dir)
-		if node != nil
-			action.call(node, depth, dir)
-			pre_order_traverse(node.left, action, depth + 1, "l")
-			pre_order_traverse(node.right, action, depth + 1, "r")
-		end
-	end
-	def in_order_traverse(node, action, depth)
-		if node != nil
-			in_order_traverse(node.left, action, depth + 1)
-			action.call(node, depth)
-			in_order_traverse(node.right, action, depth + 1)
-		end
-	end
-	def post_order_traverse(node, action)
-	end
-	def print()
-		pre_order_traverse(@root, lambda {|n, d, r| puts ("|" + "-" * d + "|" + n.value.to_s + "-" + (r != nil ? r : "")) }, 0, nil)
-	end
-
-	private
 	def tree_predecessor(node)
-		if node != nil && node.left != nil
-			return max(node.left)
+		if (node.nil?)
+			return nil
+		end	
+			
+		# max of left subtree
+		if node.left != nil
+			return tree_max(node.left)
 		end
-		value = node != nil ? node.value : nil
-		while node != nil
-			# predecessor can either be the left child or 
-			# 1st ancestor whose value is less than node
-			if node.parent != nil && node.parent.value < value
-				return node.parent
-			end
-			node = node.parent
-		end
-		return nil
+		
+		# or highest ancestor whose right child is also an ancestor of node;
+		# go up tree until we encounter a node that is the right child of its parent
+		x = node
+		y = x.parent	
+		while y != nil && y.left != nil && x.value == y.left.value do
+			x = y
+			y = y.parent
+		end	
+		return y
 	end
 	def tree_successor(node)
-		if node != nil && node.right != nil
-			return min(node.right)
+		if (node.nil?)
+			return nil 
 		end
-		value = node != nil ? node.value : nil
-		while node != nil
-			if node.parent != nil && node.parent.value > value
-				return node.parent
-			end
-			node = node.parent
+		
+		# min of right subtree
+		if node.right != nil
+			return tree_min(node.right)
 		end
-		return nil		
+		
+		# or lowest ancestor whose left child is also an ancestor of node;
+		# go up tree until we encounter a node that is the left child of its parent
+		x = node
+		y = x.parent	
+		while y != nil && y.right != nil && x.value == y.right.value do
+			x = y
+			y = y.parent
+		end	
+		
+		return y		
 	end
 	def tree_insert(node, value)
+		if node == nil
+			@root = TreeNode.new(value, nil, nil, nil)
+			return @root
+		end
+		
 		if value < node.value
 			if node.left == nil
 				node.left = TreeNode.new(value, nil, nil, node)
+				return node.left
 			else
-				tree_insert(node.left, value)
+				return tree_insert(node.left, value)
 			end
 		elsif value > node.value
 			if node.right == nil
 				node.right = TreeNode.new(value, nil, nil, node)
+				return node.right
 			else
-				tree_insert(node.right, value)
+				return tree_insert(node.right, value)
 			end
 		else
-			puts "Can't insert duplicate value"
+			raise "Can't insert duplicate value"
 		end
 	end
-	def is_left_subnode(node)
+	def tree_search(node, value)
 		if node != nil
-			parent = node.parent
-			return parent.left == node
+			if node.value == value
+				return node
+			end
+			# TODO This is not right - need to go down either left or right subtree
+			# based on value
+			return tree_search(node.left, value) || tree_search(node.right, value)
 		end
-		return false
-	end
-	def is_right_subnode(node)
-		if node != nil
-			parent = node.parent
-			return parent.right == node
-		end
-		return false
+		return nil
 	end
 	def tree_remove(node)
 		if node != nil						
@@ -149,7 +99,6 @@ class BinaryTree
 			end
 			# node has no children
 			if node.left == nil && node.right == nil
-				puts "node has no children"
 				if is_root
 					@root = nil
 				elsif is_left_subnode
@@ -160,7 +109,6 @@ class BinaryTree
 						
 			# node has one child
 			elsif node.left == nil && node.right != nil  
-				puts "node has one right child"
 				# replace node with child
 				if is_root
 					@root = node.right
@@ -170,7 +118,6 @@ class BinaryTree
 					parent.right = node.right
 				end
 			elsif node.left != nil && node.right == nil
-				puts "node has one left child"
 				if is_root
 					@root = node.left
 				elsif is_left_subnode
@@ -180,12 +127,10 @@ class BinaryTree
 				end
 			# node has two children	
 			else
-				puts "node has two children"
 				# find successor and replace deleted node with it	
 				parent = node.parent
 				
 				succ = tree_successor(node)	
-				puts "successor = #{succ.value}"
 
 				# succ.left will always be nil
 				if succ.left != nil
@@ -213,75 +158,57 @@ class BinaryTree
 			end
 		end
 	end
-	def tree_search(node, value)
-		if node != nil
-			if node.value == value
+	def tree_min(node)
+		while node != nil
+			if node.left == nil
 				return node
 			end
-			return tree_search(node.left, value) || tree_search(node.right, value)
+			node = node.left
+		end	
+		return nil
+	end
+	def tree_max(node)
+		while node != nil
+			if node.right == nil
+				return node
+			end
+			node = node.right
 		end
 		return nil
 	end
+	def pre_order_traverse(node, action, depth, dir)
+		if node != nil
+			action.call(node, depth, dir)
+			pre_order_traverse(node.left, action, depth + 1, "l")
+			pre_order_traverse(node.right, action, depth + 1, "r")
+		end
+	end
+	def in_order_traverse(node, action, depth)
+		if node != nil
+			in_order_traverse(node.left, action, depth + 1)
+			action.call(node, depth)
+			in_order_traverse(node.right, action, depth + 1)
+		end
+	end
+	def post_order_traverse(node, action)
+	end
+	def print()
+		pre_order_traverse(@root, lambda {|n, d, r| puts ("|" + "-" * d + "|" + n.value.to_s + "-" + (r != nil ? r : "")) }, 0, nil)
+	end
+
+	private
+	def is_left_subnode(node)
+		if node != nil
+			parent = node.parent
+			return parent.left == node
+		end
+		return false
+	end
+	def is_right_subnode(node)
+		if node != nil
+			parent = node.parent
+			return parent.right == node
+		end
+		return false
+	end
 end
-
-t = BinaryTree.new()
-t.insert(20)
-t.insert(10)
-t.insert(15)
-t.insert(13)
-t.insert(11)
-t.insert(12)
-t.insert(14)
-t.insert(30)
-t.insert(50)
-t.insert(60)
-t.insert(9)
-t.print()
-t.search(30)
-t.search(80)
-t.search(60)
-t.search(20)
-puts "min = #{t.min(t.root).value}"
-puts "max = #{t.max(t.root).value}"
-t.predecessor(50)
-t.predecessor(20)
-t.predecessor(60)
-t.predecessor(30)
-t.predecessor(10)
-t.predecessor(80)
-t.predecessor(11)
-t.predecessor(12)
-t.predecessor(13)
-t.predecessor(14)
-t.predecessor(15)
-
-t.successor(50)
-t.successor(20)
-t.successor(60)
-t.successor(30)
-t.successor(10)
-t.successor(80)
-t.successor(11)
-t.successor(12)
-t.successor(13)
-t.successor(14)
-t.successor(15)
-
-puts "Removing 12"
-t.remove(12)
-t.print()
-
-
-puts "Removing 14"
-t.remove(14)
-t.print()
-
-puts "Removing 10"
-t.remove(10)
-t.print()
-
-puts "Removing 20"
-t.remove(20)
-t.print()
-
-
