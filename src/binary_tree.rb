@@ -176,11 +176,11 @@ class BinaryTree
 		end
 		return nil
 	end
-	def pre_order_traverse(node, action, depth, dir)
+	def pre_order_traverse(node, action, depth)
 		if node != nil
-			action.call(node, depth, dir)
-			pre_order_traverse(node.left, action, depth + 1, "l")
-			pre_order_traverse(node.right, action, depth + 1, "r")
+			action.call(node, depth)
+			pre_order_traverse(node.left, action, depth + 1)
+			pre_order_traverse(node.right, action, depth + 1)
 		end
 	end
 	def in_order_traverse(node, action, depth)
@@ -190,10 +190,16 @@ class BinaryTree
 			in_order_traverse(node.right, action, depth + 1)
 		end
 	end
-	def post_order_traverse(node, action)
+	def post_order_traverse(node, action, depth)
+		if node != nil
+			post_order_traverse(node.left, action, depth + 1)
+			post_order_traverse(node.right, action, depth + 1)
+			action.call(node, depth)
+		end
 	end
-	def print()
-		pre_order_traverse(@root, lambda {|n, d, r| puts ("|" + "-" * d + "|" + n.value.to_s + "-" + (r != nil ? r : "")) }, 0, nil)
+	def print(order)
+		f = order == "pre" ? pre_order_traverse : (order == "post" ? post_order_traverse : in_order_traverse)
+		f(@root, lambda {|n, d| puts ("|" + "-" * d + "|" + n.value.to_s) }, 0)
 	end
 
 	private
@@ -210,5 +216,18 @@ class BinaryTree
 			return parent.right == node
 		end
 		return false
+	end
+	# replace node u with node v
+	def transplant(u, v)
+		if u.parent == nil
+			@root = v
+		elsif u == u.parent.left
+			u.parent.left = v 
+		else
+			u.parent.right = v	
+		end
+		if v != nil
+			v.parent = u.parent
+		end	
 	end
 end

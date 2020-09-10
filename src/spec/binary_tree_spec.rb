@@ -340,3 +340,96 @@ describe BinaryTree, "#max" do
 		end
 	end
 end
+describe BinaryTree, "#pre_order_traverse" do
+	context "empty tree" do
+		it "returns without error" do
+			t = BinaryTree.new()
+
+			s = ""
+			t.pre_order_traverse(nil, lambda {|n, d| s += n.value.to_s + "-"}, 0)
+	
+			expect(s).to eq ""
+		end
+	end
+	context "populated tree" do
+		it "visits nodes in pre-order" do
+			t = BinaryTree.new()
+			root = t.tree_insert(nil, 20)
+			node = t.tree_insert(root, 10)
+			t.tree_insert(root, 30)
+			t.tree_insert(root, 25)
+			t.tree_insert(root, 35)
+			t.tree_insert(root, 5)
+			t.tree_insert(root, 15)
+			t.tree_insert(root, 12)
+			t.tree_insert(root, 17)
+
+			s = ""
+			t.pre_order_traverse(root, lambda {|n, d| s += n.value.to_s + "-"}, 0)
+	
+			expect(s).to eq "20-10-5-15-12-17-30-25-35-"
+		end
+	end
+end
+describe BinaryTree, "#in_order_traverse" do
+	context "empty tree" do
+		it "returns without error" do
+			t = BinaryTree.new()
+
+			s = ""
+			t.in_order_traverse(nil, lambda {|n, d| s += n.value.to_s + "-"}, 0)
+	
+			expect(s).to eq ""
+		end
+	end
+	context "populated tree" do
+		it "visits nodes in order" do
+			t = BinaryTree.new()
+			root = t.tree_insert(nil, 20)
+			node = t.tree_insert(root, 10)
+			t.tree_insert(root, 30)
+			t.tree_insert(root, 25)
+			t.tree_insert(root, 35)
+			t.tree_insert(root, 5)
+			t.tree_insert(root, 15)
+			t.tree_insert(root, 12)
+			t.tree_insert(root, 17)
+
+			s = ""
+			t.in_order_traverse(root, lambda {|n, d| s += n.value.to_s + "-"}, 0)
+	
+			expect(s).to eq "5-10-12-15-17-20-25-30-35-"
+		end
+	end
+end
+describe BinaryTree, "#post_order_traverse" do
+	context "empty tree" do
+		it "returns without error" do
+			t = BinaryTree.new()
+
+			s = ""
+			t.post_order_traverse(nil, lambda {|n, d| s += n.value.to_s + "-"}, 0)
+	
+			expect(s).to eq ""
+		end
+	end
+	context "populated tree" do
+		it "visits nodes in post-order" do
+			t = BinaryTree.new()
+			root = t.tree_insert(nil, 20)
+			node = t.tree_insert(root, 10)
+			t.tree_insert(root, 30)
+			t.tree_insert(root, 25)
+			t.tree_insert(root, 35)
+			t.tree_insert(root, 5)
+			t.tree_insert(root, 15)
+			t.tree_insert(root, 12)
+			t.tree_insert(root, 17)
+
+			s = ""
+			t.post_order_traverse(root, lambda {|n, d| s += n.value.to_s + "-"}, 0)
+	
+			expect(s).to eq "5-12-17-15-10-25-35-30-20-"
+		end
+	end
+end
