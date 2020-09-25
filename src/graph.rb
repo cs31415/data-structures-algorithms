@@ -1,5 +1,6 @@
 require_relative  'linked_list'
 
+# Represents a Vertex in the graph
 class Vertex
 	attr_accessor :key, :adjList
     def initialize(key)
@@ -7,18 +8,7 @@ class Vertex
 		@key = key
     end
 
-    def addEdges(*keys)
-        if not @adjList
-            @adjList = LinkedList.new
-        end
-        # add value to adj list if it doesn't already exist
-        keys.each do |key|
-            if not @adjList.contains(key)
-                @adjList.add(key)
-            end
-        end
-    end
-
+    # add one or more edges (vertices to which this vertex is connected)
     def addEdges(*vertices)
         if not @adjList
             @adjList = LinkedList.new

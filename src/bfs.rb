@@ -25,8 +25,6 @@ def bfs(g, skey)
     color[skey] = "gray"
     q.enq s
 
-    paths = Array.new
-
     # process queue
     while !q.empty?
         # dequeue item for processing

@@ -5,10 +5,10 @@ class DfsHelper
     # g - graph
     def dfs(g)
         # create required structures
-        @pred = Hash.new
-        @color = Hash.new
-        @d = Hash.new
-        @f = Hash.new
+        @pred = Hash.new # predecessor of vertex v
+        @color = Hash.new # color of vertex v (white = undiscovered, gray = unvisited, black = finished)
+        @d = Hash.new # when vertex v is discovered
+        @f = Hash.new # when vertex v is finished exploring
         @time = 0
 
         # initialize g
