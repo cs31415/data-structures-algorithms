@@ -6,16 +6,17 @@ namespace Collections
 {
     /// <summary>
     /// Find shortest path from a single source vertex to all
-    /// reachable vertices in a directed graph
+    /// reachable vertices in a directed graph with negative
+    /// edge weights
     /// </summary>
-    public class Dijkstra
+    public class BellmanFord
     {
         /// <summary>
         /// Given graph G, determine shortest paths to all reachable vertices from source s
         /// </summary>
         /// <param name="g"></param>
         /// <param name="s"></param>
-        public void ShortestPath(Graph g, Vertex s)
+        public bool ShortestPath(Graph g, Vertex s)
         {
             if (g == null)
             {
@@ -27,23 +28,37 @@ namespace Collections
             }
 
             Initialize(g, s);
-            
-            // priority queue (min-heap) on Vertex.Distance
-            var Q = new Heap<Vertex>(true); 
-            Q.BuildHeap(g.Vertices.Values.ToList());
-            
-            while (Q.HeapSize > 0)
+
+            var edges = Edges(g);
+            for (int i = 1; i < g.Vertices.Count; i++)
             {
-                var u = Q.ExtractHead();
-                u.Edges.ToList().ForEach(k =>
+                foreach (var edge in edges)
                 {
-                    if (Relax(u, k.Dest))
-                    {
-                        //Q.Insert(k.Dest); This would handle -ve edge weights
-                        Q.Heapify(0); // Refresh priority Q if priority was updated
-                    }
-                });
+                    var u = edge.Source;
+                    var v = edge.Dest;
+                    Relax(u, v);
+                }
             }
+
+            foreach (var edge in edges)
+            {
+                var u = edge.Source;
+                var v = edge.Dest;
+                var w = edge.Weight;
+                if (v.Distance > u.Distance + w)
+                {
+                    return false;
+                }
+            }
+                        
+            return true;
+        }
+
+        private IList<Edge> Edges(Graph g)
+        {
+            return g.Vertices
+                .SelectMany(p => p.Value.Edges)
+                .ToList();
         }
 
         private void Initialize(Graph g, Vertex s)

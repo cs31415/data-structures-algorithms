@@ -56,7 +56,7 @@ namespace Collections
             var i = HeapSize - 1;
 
             // Start at the end of the heap and move up till a place is found
-            // for the value (until a higher valued parent is found).
+            // for the value (until a higher or lower[min heap] valued parent is found).
             while (i > 0 && Compare(A[Parent(i)], val) < 0)
             {
                 A[i] = A[Parent(i)];
