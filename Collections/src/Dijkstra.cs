@@ -41,7 +41,7 @@ namespace Collections
                 u.Edges.ToList().ForEach(k =>
                 {
                     if (Relax(u, k.Dest))
-                        Q.Update(k.Dest); // Refresh priority Q if priority was updated
+                        Q.Heapify(0); // Refresh priority Q if priority was updated
                 });
             }
         }

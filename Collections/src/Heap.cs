@@ -67,20 +67,6 @@ namespace Collections
         }
 
         /// <summary>
-        /// If an existing item is updated, reposition it in the heap
-        /// </summary>
-        /// <param name="val"></param>
-        public void Update(T val)
-        {
-            int i = A.IndexOf(val);
-            while (i > 0 && Compare(A[Parent(i)], A[i]) < 0)
-            {
-                Swap(i, Parent(i));
-                i = Parent(i);
-            }
-        }
-
-        /// <summary>
         /// Make the subtree rooted at i into a heap by floating down(or up) the
         /// value at A[i]
         /// </summary>
